@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baccarat Royale</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=EB+Garamond:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --felt:      #0b2116;
+      --felt-mid:  #10291d;
+      --felt-rim:  #1a3f2a;
+      --gold:      #c9a84c;
+      --gold-lt:   #e2c46e;
+      --gold-dk:   #7a6130;
+      --red:       #b83030;
+      --green-win: #5dbe88;
+      --text:      #ddd4b8;
+      --text-dim:  rgba(221,212,184,.42);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: #050d08;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      color: var(--text);
+      font-family: 'EB Garamond', serif;
+      background-image: radial-gradient(ellipse 90% 45% at 50% 0%,
+        rgba(201,168,76,.07) 0%, transparent 65%);
+    }
+
+    /* ─────────────────────────── TOPBAR */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 8px 22px;
+      background: rgba(0,0,0,.35);
+      border-bottom: 1px solid rgba(201,168,76,.15);
+      flex-shrink: 0;
+    }
+    .title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.45rem;
+      color: var(--gold);
+      letter-spacing: .42em;
+      text-transform: uppercase;
+      text-shadow: 0 0 28px rgba(201,168,76,.3);
+      white-space: nowrap;
+    }
+    .pipe { color: rgba(201,168,76,.22); }
+
+    .stats-group {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      flex: 1;
+    }
+    .stat { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+    .stat-lbl { font-size: .6rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-dk); line-height: 1; }
+    .stat-val { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--gold); line-height: 1.15; }
+    #balance-val { color: var(--green-win); font-size: 1.1rem; }
+
+    .badge { display: inline-block; padding: 1px 9px; border-radius: 20px; font-size: .78rem; }
+    .badge-p { background: rgba(100,149,237,.14); color: #a0bcf8; border: 1px solid rgba(100,149,237,.3); }
+    .badge-b { background: rgba(192,57,43,.17);   color: #f0a090; border: 1px solid rgba(192,57,43,.38); }
+    .badge-t { background: rgba(93,190,136,.14);  color: #8df0b8; border: 1px solid rgba(93,190,136,.3); }
+
+    .rules-btn {
+      margin-left: auto;
+      padding: 6px 18px;
+      border: 1px solid rgba(201,168,76,.32);
+      border-radius: 6px;
+      background: rgba(201,168,76,.07);
+      color: var(--gold);
+      font-family: 'EB Garamond', serif;
+      font-size: .88rem;
+      letter-spacing: .1em;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .rules-btn:hover { background: rgba(201,168,76,.14); border-color: var(--gold); }
+
+    /* ─────────────────────────── MAIN */
+    .main {
+      flex: 1;
+      display: flex;
+      gap: 14px;
+      padding: 12px 16px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ─────────────────────────── LEFT PANEL */
+    .panel-left {
+      width: 148px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    /* ─────────────────────────── TABLE */
+    .table {
+      flex: 1;
+      background: var(--felt);
+      border-radius: 18px;
+      border: 3px solid var(--gold-dk);
+      box-shadow:
+        0 0 0 5px #050d08,
+        0 0 0 7px rgba(201,168,76,.22),
+        0 20px 55px rgba(0,0,0,.72),
+        inset 0 0 80px rgba(0,0,0,.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* ─────────────────────────── RIGHT PANEL */
+    .panel-right {
+      width: 155px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    /* ─────────────────────────── HAND AREAS */
+    .hand-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      min-height: 0;
+    }
+    .hand-lbl {
+      font-size: .67rem;
+      letter-spacing: .45em;
+      text-transform: uppercase;
+      color: var(--gold-dk);
+      margin-bottom: 6px;
+    }
+    .cards-row {
+      display: flex;
+      justify-content: center;
+      gap: 9px;
+      align-items: center;
+      min-height: 84px;
+    }
+    .hand-score {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.65rem;
+      color: var(--gold);
+      min-height: 34px;
+      line-height: 1;
+      margin-top: 5px;
+    }
+    .hand-score.natural { color: var(--green-win); }
+
+    /* ─────────────────────────── CARDS */
+    .card {
+      width: 56px; height: 80px;
+      background: #fefcf5;
+      border-radius: 7px;
+      box-shadow: 2px 3px 10px rgba(0,0,0,.52);
+      display: flex; flex-direction: column;
+      justify-content: space-between;
+      padding: 4px 5px;
+      position: relative;
+      animation: dealCard .38s cubic-bezier(.22,.68,0,1.2) both;
+      flex-shrink: 0;
+    }
+    @keyframes dealCard {
+      from { opacity:0; transform:translateY(-60px) rotate(-8deg) scale(.8); }
+      to   { opacity:1; transform:translateY(0) rotate(0) scale(1); }
+    }
+    .card-corner { display:flex; flex-direction:column; align-items:flex-start; line-height:1; }
+    .card-corner.bot { align-self:flex-end; transform:rotate(180deg); }
+    .card-val  { font-family:'Playfair Display',serif; font-size:.85rem; font-weight:700; line-height:1; }
+    .card-suit { font-size:.68rem; line-height:1; }
+    .card-mid  { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.5rem; pointer-events:none; }
+    .card.red .card-val, .card.red .card-suit, .card.red .card-mid { color: var(--red); }
+    .card.blk .card-val, .card.blk .card-suit, .card.blk .card-mid { color: #161616; }
+    .card-ph { width:56px; height:80px; border-radius:7px; border:2px dashed rgba(201,168,76,.18); flex-shrink:0; }
+
+    /* ─────────────────────────── DIVIDERS */
+    .divider { display:flex; align-items:center; gap:10px; padding:0 16px; flex-shrink:0; }
+    .div-line { flex:1; height:1px; background:linear-gradient(to right,transparent,var(--felt-rim),transparent); }
+    .div-gem  { color:var(--gold-dk); font-size:.6rem; }
+
+    /* ─────────────────────────── RESULT BANNER */
+    .result-banner {
+      text-align:center; padding:3px 16px;
+      font-family:'Playfair Display',serif;
+      font-size:1.15rem; letter-spacing:.06em;
+      min-height:32px;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .result-banner.win  { color:var(--green-win); animation:popIn .4s ease; }
+    .result-banner.lose { color:#e07070;           animation:popIn .4s ease; }
+    .result-banner.push { color:var(--gold);       animation:popIn .4s ease; }
+    @keyframes popIn {
+      from { opacity:0; transform:scale(.87); }
+      to   { opacity:1; transform:scale(1); }
+    }
+
+    /* ─────────────────────────── BETTING ZONE */
+    .bet-zone {
+      background: var(--felt-mid);
+      border-top: 2px solid var(--felt-rim);
+      border-bottom: 2px solid var(--felt-rim);
+      padding: 10px 16px;
+      flex-shrink: 0;
+    }
+    .bet-row { display:flex; gap:10px; justify-content:center; }
+    .bet-box {
+      flex:1; max-width:200px;
+      border:2px solid rgba(201,168,76,.24);
+      border-radius:10px; padding:9px 8px 7px;
+      text-align:center; cursor:pointer;
+      transition:border-color .2s,background .2s,transform .15s;
+      background:rgba(0,0,0,.18);
+      user-select:none;
+    }
+    .bet-box:hover:not(.locked) { border-color:var(--gold); background:rgba(201,168,76,.07); transform:translateY(-2px); }
+    .bet-box.active  { border-color:var(--gold); background:rgba(201,168,76,.1); }
+    .bet-box.locked  { cursor:default; }
+    .bet-box.winner  { animation:winPulse .55s ease-in-out 3; }
+    @keyframes winPulse {
+      0%,100% { box-shadow:none; }
+      50%     { box-shadow:0 0 20px rgba(93,190,136,.5); border-color:var(--green-win); }
+    }
+    .bet-type { font-family:'Playfair Display',serif; font-size:.73rem; letter-spacing:.18em; text-transform:uppercase; color:var(--gold); margin-bottom:2px; }
+    .bet-odds { font-size:.66rem; color:var(--text-dim); margin-bottom:5px; }
+    .bet-amt  { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--gold-lt); }
+    .bet-amt.zero { color:rgba(221,212,184,.22); }
+
+    /* ─────────────────────────── SIDE BET BOXES */
+    .side-bet-box {
+      border:2px solid rgba(201,168,76,.24); border-radius:10px;
+      padding:10px 8px; text-align:center; cursor:pointer;
+      transition:border-color .2s,background .2s,transform .15s;
+      background:rgba(0,0,0,.22); user-select:none;
+    }
+    .side-bet-box:hover:not(.locked) { border-color:var(--gold); background:rgba(201,168,76,.07); transform:translateY(-2px); }
+    .side-bet-box.active  { border-color:var(--gold); background:rgba(201,168,76,.1); }
+    .side-bet-box.locked  { cursor:default; }
+    .side-bet-box.winner  { animation:winPulse .55s ease-in-out 3; }
+
+    /* ─────────────────────────── CHIPS */
+    .chips-grid {
+      display:grid; grid-template-columns:1fr 1fr; gap:8px;
+    }
+    .chip {
+      aspect-ratio:1; border-radius:50%; border:3px dashed;
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Playfair Display',serif; font-size:.76rem; font-weight:700;
+      cursor:pointer; transition:transform .18s,box-shadow .18s;
+      position:relative; user-select:none;
+    }
+    .chip:hover      { transform:translateY(-2px) scale(1.06); }
+    .chip:active     { transform:scale(.97); }
+    .chip.sel        { transform:translateY(-3px) scale(1.09); }
+    .chip.sel::after { content:''; position:absolute; inset:-5px; border-radius:50%; border:2px solid var(--gold); }
+    .chip-5   { color:#d8c8ff; border-color:#9060d0; background:radial-gradient(circle,#3a2060,#1a0c38); }
+    .chip-25  { color:#ffe8a0; border-color:#b08030; background:radial-gradient(circle,#604018,#301808); }
+    .chip-100 { color:#a8e8b0; border-color:#408050; background:radial-gradient(circle,#183828,#0a1e12); }
+    .chip-500 { color:#ffc8c8; border-color:#c05050; background:radial-gradient(circle,#601010,#300808); }
+
+    /* ─────────────────────────── BUTTONS */
+    .btn {
+      width:100%; padding:10px 0;
+      border:none; border-radius:8px;
+      font-family:'Playfair Display',serif;
+      font-size:.88rem; letter-spacing:.15em;
+      text-transform:uppercase; cursor:pointer; transition:all .2s;
+    }
+    .btn-primary {
+      background:linear-gradient(135deg,var(--gold-lt),var(--gold-dk));
+      color:#1a0d00; font-weight:700;
+      box-shadow:0 4px 14px rgba(201,168,76,.24);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background:linear-gradient(135deg,#f0d880,var(--gold));
+      transform:translateY(-2px); box-shadow:0 6px 18px rgba(201,168,76,.36);
+    }
+    .btn-secondary {
+      background:rgba(255,255,255,.05); color:var(--text);
+      border:1px solid rgba(255,255,255,.11);
+    }
+    .btn-secondary:hover:not(:disabled) { background:rgba(255,255,255,.1); }
+    .btn:disabled { opacity:.35; cursor:not-allowed; transform:none !important; }
+
+    .msg {
+      text-align:center; font-size:.8rem;
+      color:var(--text-dim); letter-spacing:.04em; min-height:18px;
+    }
+
+    /* ─────────────────────────── MODAL SHARED */
+    .modal-bg {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.8);
+      align-items:center; justify-content:center; z-index:200;
+    }
+    .modal-bg.show { display:flex; }
+    .modal {
+      background:var(--felt-mid);
+      border:2px solid var(--gold-dk);
+      border-radius:16px; padding:30px 38px;
+      max-width:520px; width:90%;
+      box-shadow:0 30px 60px rgba(0,0,0,.72);
+      max-height:86vh; overflow-y:auto;
+    }
+    .modal-title {
+      font-family:'Playfair Display',serif; font-size:1.45rem;
+      color:var(--gold); margin-bottom:14px;
+      text-align:center; letter-spacing:.22em; text-transform:uppercase;
+    }
+    .modal-close {
+      display:block; margin:18px auto 0;
+      padding:9px 28px; border:none; border-radius:8px;
+      background:linear-gradient(135deg,var(--gold-lt),var(--gold-dk));
+      color:#1a0d00; font-family:'Playfair Display',serif;
+      font-size:.88rem; letter-spacing:.12em; text-transform:uppercase;
+      cursor:pointer; font-weight:700;
+    }
+    .modal-close:hover { filter:brightness(1.1); }
+
+    /* ─────────────────────────── RULES CONTENT */
+    .r-section { margin-bottom:14px; }
+    .r-section h3 {
+      font-family:'Playfair Display',serif; color:var(--gold);
+      font-size:.95rem; letter-spacing:.1em; text-transform:uppercase;
+      margin-bottom:6px; border-bottom:1px solid rgba(201,168,76,.2);
+      padding-bottom:4px;
+    }
+    .r-section p, .r-section li { font-size:.87rem; color:var(--text); line-height:1.62; }
+    .r-section ul { padding-left:16px; }
+    .r-section li { margin-bottom:3px; }
+    .hl { color:var(--gold-lt); }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════ TOPBAR -->
+  <div class="topbar">
+    <div class="title">Baccarat</div>
+    <span class="pipe">|</span>
+    <div class="stats-group">
+      <div class="stat">
+        <div class="stat-lbl">Banker</div>
+        <div class="stat-val" id="s-banker">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Player</div>
+        <div class="stat-val" id="s-player">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Ties</div>
+        <div class="stat-val" id="s-tie">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Streak</div>
+        <div class="stat-val" id="streak-val">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat-lbl">Balance</div>
+        <div class="stat-val" id="balance-val">$1,000</div>
+      </div>
+    </div>
+    <button class="rules-btn" onclick="document.getElementById('rules-modal').classList.add('show')">📖 Rules</button>
+  </div>
+
+  <!-- ══════════════════ MAIN -->
+  <div class="main">
+
+    <!-- LEFT: side bets -->
+    <div class="panel-left">
+      <div class="side-bet-box" id="box-pPair" onclick="placeBet('pPair')">
+        <div class="bet-type">Player Pair</div>
+        <div class="bet-odds">Pays 11 : 1</div>
+        <div class="bet-amt zero" id="amt-pPair">$0</div>
+      </div>
+      <div class="side-bet-box" id="box-bPair" onclick="placeBet('bPair')">
+        <div class="bet-type">Banker Pair</div>
+        <div class="bet-odds">Pays 11 : 1</div>
+        <div class="bet-amt zero" id="amt-bPair">$0</div>
+      </div>
+    </div>
+
+    <!-- CENTER: table felt -->
+    <div class="table">
+
+      <!-- Banker hand -->
+      <div class="hand-area">
+        <div class="hand-lbl">Banker</div>
+        <div class="cards-row" id="banker-cards">
+          <div class="card-ph"></div><div class="card-ph"></div>
+        </div>
+        <div class="hand-score" id="banker-score"></div>
+      </div>
+
+      <div class="divider"><div class="div-line"></div><div class="div-gem">◆</div><div class="div-line"></div></div>
+
+      <!-- Result banner -->
+      <div class="result-banner" id="result-banner"></div>
+
+      <!-- Main bets -->
+      <div class="bet-zone">
+        <div class="bet-row">
+          <div class="bet-box" id="box-player" onclick="placeBet('player')">
+            <div class="bet-type">Player</div>
+            <div class="bet-odds">Pays 1 : 1</div>
+            <div class="bet-amt zero" id="amt-player">$0</div>
+          </div>
+          <div class="bet-box" id="box-tie" onclick="placeBet('tie')">
+            <div class="bet-type">Tie</div>
+            <div class="bet-odds">Pays 8 : 1</div>
+            <div class="bet-amt zero" id="amt-tie">$0</div>
+          </div>
+          <div class="bet-box" id="box-banker" onclick="placeBet('banker')">
+            <div class="bet-type">Banker</div>
+            <div class="bet-odds">Pays 0.95 : 1</div>
+            <div class="bet-amt zero" id="amt-banker">$0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"><div class="div-line"></div><div class="div-gem">◆</div><div class="div-line"></div></div>
+
+      <!-- Player hand -->
+      <div class="hand-area">
+        <div class="hand-score" id="player-score"></div>
+        <div class="cards-row" id="player-cards">
+          <div class="card-ph"></div><div class="card-ph"></div>
+        </div>
+        <div class="hand-lbl" style="margin-top:8px;margin-bottom:0">Player</div>
+      </div>
+
+    </div><!-- /table -->
+
+    <!-- RIGHT: controls -->
+    <div class="panel-right">
+      <div class="chips-grid">
+        <div class="chip chip-5 sel" id="chip-5"   onclick="selChip(5)">$5</div>
+        <div class="chip chip-25"   id="chip-25"  onclick="selChip(25)">$25</div>
+        <div class="chip chip-100"  id="chip-100" onclick="selChip(100)">$100</div>
+        <div class="chip chip-500"  id="chip-500" onclick="selChip(500)">$500</div>
+      </div>
+      <button class="btn btn-secondary" id="btn-repeat" onclick="repeatBet()" disabled>Repeat Bet</button>
+      <button class="btn btn-secondary" id="btn-clear" onclick="clearBets()">Clear Bets</button>
+      <button class="btn btn-primary"   id="btn-deal"  onclick="handleDeal()">Deal</button>
+      <div class="msg" id="msg">Place your bets.</div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- ══════════════════ BANKRUPT MODAL -->
+  <div class="modal-bg" id="bust-modal">
+    <div class="modal" style="text-align:center">
+      <div class="modal-title">Maison Wins</div>
+      <p style="color:var(--text-dim);margin-bottom:20px;font-size:.9rem">
+        Your balance has run dry, monsieur.<br>Care for another go?
+      </p>
+      <button class="modal-close" onclick="resetGame()">New Game · $1,000</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════ RULES MODAL -->
+  <div class="modal-bg" id="rules-modal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal">
+      <div class="modal-title">How to Play</div>
+
+      <div class="r-section">
+        <h3>The Objective</h3>
+        <p>Bet on whether the <span class="hl">Player</span> or <span class="hl">Banker</span> hand will total closest to <span class="hl">9</span>, or predict a <span class="hl">Tie</span>. You are not the Player — you simply wager on an outcome.</p>
+      </div>
+
+      <div class="r-section">
+        <h3>Card Values</h3>
+        <ul>
+          <li><span class="hl">Ace</span> = 1 point</li>
+          <li><span class="hl">2 through 9</span> = face value</li>
+          <li><span class="hl">10, J, Q, K</span> = 0 points</li>
+        </ul>
+        <p style="margin-top:6px">Only the <span class="hl">last digit</span> of the total counts — a hand of 7 + 8 = 15 scores as <span class="hl">5</span>.</p>
+      </div>
+
+      <div class="r-section">
+        <h3>Naturals (Instant Win)</h3>
+        <p>If either hand totals <span class="hl">8 or 9</span> on the first two cards, it's a Natural. No further cards are drawn and the highest Natural wins.</p>
+      </div>
+
+      <div class="r-section">
+        <h3>Third Card Rules</h3>
+        <ul>
+          <li><span class="hl">Player</span> draws a third card on totals 0–5; stands on 6 or 7.</li>
+          <li><span class="hl">Banker</span> drawing follows standard Punto Banco rules based on the Banker's total and the Player's third card value.</li>
+        </ul>
+      </div>
+
+      <div class="r-section">
+        <h3>Payouts</h3>
+        <ul>
+          <li><span class="hl">Player</span> wins → <span class="hl">1 : 1</span></li>
+          <li><span class="hl">Banker</span> wins → <span class="hl">0.95 : 1</span> (5% house commission)</li>
+          <li><span class="hl">Tie</span> → <span class="hl">8 : 1</span> — Player &amp; Banker bets push (stakes returned)</li>
+          <li><span class="hl">Player / Banker Pair</span> → <span class="hl">11 : 1</span> (first two cards of that hand form a pair)</li>
+        </ul>
+      </div>
+
+      <button class="modal-close" onclick="document.getElementById('rules-modal').classList.remove('show')">Got It</button>
+    </div>
+  </div>
+
+<script>
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+const G = {
+  balance: 1000,
+  bets:    { player:0, banker:0, tie:0, pPair:0, bPair:0 },
+  pHand:   [],
+  bHand:   [],
+  deck:    [],
+  phase:   'betting',
+  score:   { player:0, banker:0, tie:0 },
+  streak:   { type:null, n:0 },
+  chip:     5,
+  lastBets: null,
+};
+
+// ══════════════════════════════════════════════
+//  DECK
+// ══════════════════════════════════════════════
+function buildShoe() {
+  const suits=['♠','♥','♦','♣'], vals=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  const shoe=[];
+  for (let d=0;d<8;d++)
+    for (const s of suits)
+      for (const v of vals) {
+        const red=s==='♥'||s==='♦';
+        const pts=['10','J','Q','K'].includes(v)?0:v==='A'?1:+v;
+        shoe.push({s,v,pts,red});
+      }
+  for (let i=shoe.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[shoe[i],shoe[j]]=[shoe[j],shoe[i]];}
+  return shoe;
+}
+function draw(){
+  if(G.deck.length<15){G.deck=buildShoe();setMsg('New shoe shuffled.');}
+  return G.deck.pop();
+}
+
+// ══════════════════════════════════════════════
+//  GAME LOGIC
+// ══════════════════════════════════════════════
+const total  = h=>h.reduce((s,c)=>s+c.pts,0)%10;
+const natural= h=>h.length===2&&total(h)>=8;
+const isPair = h=>h.length>=2&&h[0].v===h[1].v;
+
+function bankerDraw(bTot,p3){
+  if(!p3)return bTot<=5;
+  const p=p3.pts;
+  if(bTot<=2)return true;
+  if(bTot===3)return p!==8;
+  if(bTot===4)return p>=2&&p<=7;
+  if(bTot===5)return p>=4&&p<=7;
+  if(bTot===6)return p===6||p===7;
+  return false;
+}
+
+// ══════════════════════════════════════════════
+//  CHIP / BET
+// ══════════════════════════════════════════════
+function selChip(v){
+  G.chip=v;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('chip-'+v).classList.add('sel');
+}
+function placeBet(type){
+  if(G.phase!=='betting')return;
+  if(G.balance<G.chip){setMsg('Insufficient balance!');return;}
+  G.bets[type]+=G.chip; G.balance-=G.chip;
+  refreshBet(type); refreshBalance(); setMsg('');
+}
+function clearBets(){
+  if(G.phase!=='betting')return;
+  for(const k in G.bets){G.balance+=G.bets[k];G.bets[k]=0;}
+  refreshAllBets(); refreshBalance(); setMsg('Bets cleared.');
+}
+function repeatBet(){
+  if(G.phase!=='betting'||!G.lastBets)return;
+  const total=Object.values(G.lastBets).reduce((a,v)=>a+v,0);
+  if(G.balance<total){setMsg('Insufficient balance to repeat bet!');return;}
+  // clear current bets first, then apply last bets
+  for(const k in G.bets){G.balance+=G.bets[k];G.bets[k]=0;}
+  for(const k in G.lastBets){G.bets[k]=G.lastBets[k];G.balance-=G.lastBets[k];}
+  refreshAllBets(); refreshBalance(); setMsg('');
+}
+
+// ══════════════════════════════════════════════
+//  DEAL FLOW
+// ══════════════════════════════════════════════
+async function handleDeal(){
+  if(G.phase==='betting')await startRound();
+  else if(G.phase==='result')newRound();
+}
+async function startRound(){
+  if(!Object.values(G.bets).some(v=>v>0)){setMsg('Place at least one bet.');return;}
+  G.lastBets={...G.bets};  G.phase='dealing'; setDealBtn('dealing'); clearResultBanner(); setMsg('');
+  G.pHand=[]; G.bHand=[]; resetCards();
+
+  await dealTo('p',0);
+  await dealTo('b',480);
+  await dealTo('p',960);
+  await dealTo('b',1440);
+
+  let p3=null;
+  if(!natural(G.pHand)&&!natural(G.bHand)){
+    if(total(G.pHand)<=5){await dealTo('p',600);p3=G.pHand[2];}
+    if(bankerDraw(total(G.bHand),p3))await dealTo('b',600);
+  }
+  await wait(420);
+  resolve();
+}
+async function dealTo(who,ms){
+  await wait(ms);
+  const card=draw();
+  const hand=who==='p'?G.pHand:G.bHand;
+  hand.push(card);
+  addCardEl(who==='p'?'player-cards':'banker-cards',card);
+  updateScoreEl(who);
+}
+function resolve(){
+  const pT=total(G.pHand),bT=total(G.bHand);
+  const winner=pT>bT?'player':bT>pT?'banker':'tie';
+  G.score[winner]++;
+  G.streak=G.streak.type===winner?{type:winner,n:G.streak.n+1}:{type:winner,n:1};
+
+  const b=G.bets;
+  let add=0;
+  if(winner==='player')        add+=b.player*2;
+  else if(winner==='banker')   add+=b.banker+Math.floor(b.banker*0.95);
+  else                         add+=b.player+b.banker+b.tie*9;
+  if(isPair(G.pHand))add+=b.pPair*12;
+  if(isPair(G.bHand))add+=b.bPair*12;
+
+  G.balance+=add;
+  const wagered=Object.values(b).reduce((a,v)=>a+v,0);
+  const net=add-wagered;
+
+  const boxMap={player:'box-player',banker:'box-banker',tie:'box-tie'};
+  document.getElementById(boxMap[winner]).classList.add('winner');
+  if(isPair(G.pHand)&&b.pPair)document.getElementById('box-pPair').classList.add('winner');
+  if(isPair(G.bHand)&&b.bPair)document.getElementById('box-bPair').classList.add('winner');
+
+  const labels={player:'🃏 Player Wins',banker:'🏦 Banker Wins',tie:'🤝 Tie'};
+  let txt=labels[winner],cls='';
+  if(net>0){txt+=` · +$${fmt(net)}`;cls='win';}
+  else if(net<0){txt+=` · -$${fmt(-net)}`;cls='lose';}
+  else{cls='push';}
+
+  showResultBanner(txt,cls);
+  refreshBalance(); refreshStats();
+  G.phase='result'; setDealBtn('result');
+  if(G.balance<=0)setTimeout(()=>document.getElementById('bust-modal').classList.add('show'),1200);
+}
+function newRound(){
+  G.phase='betting'; G.pHand=[]; G.bHand=[];
+  for(const k in G.bets)G.bets[k]=0;
+  resetCards(); refreshAllBets(); clearResultBanner();
+  setDealBtn('betting'); setMsg('Place your bets.');
+  document.querySelectorAll('.bet-box,.side-bet-box').forEach(b=>b.classList.remove('winner','active'));
+}
+function resetGame(){
+  document.getElementById('bust-modal').classList.remove('show');
+  G.balance=1000; G.score={player:0,banker:0,tie:0}; G.streak={type:null,n:0};
+  refreshStats(); refreshBalance(); newRound();
+}
+
+// ══════════════════════════════════════════════
+//  DOM HELPERS
+// ══════════════════════════════════════════════
+function addCardEl(cid,card){
+  const row=document.getElementById(cid);
+  const ph=row.querySelector('.card-ph');
+  if(ph)ph.remove();
+  const el=document.createElement('div');
+  el.className='card '+(card.red?'red':'blk');
+  el.innerHTML=`
+    <div class="card-corner"><div class="card-val">${card.v}</div><div class="card-suit">${card.s}</div></div>
+    <div class="card-mid">${card.s}</div>
+    <div class="card-corner bot"><div class="card-val">${card.v}</div><div class="card-suit">${card.s}</div></div>`;
+  row.appendChild(el);
+}
+function updateScoreEl(who){
+  const hand=who==='p'?G.pHand:G.bHand;
+  const el=document.getElementById(who==='p'?'player-score':'banker-score');
+  if(!hand.length){el.textContent='';el.classList.remove('natural');return;}
+  el.textContent=total(hand);
+  el.classList.toggle('natural',natural(hand));
+}
+function resetCards(){
+  ['player-cards','banker-cards'].forEach(id=>{
+    document.getElementById(id).innerHTML='<div class="card-ph"></div><div class="card-ph"></div>';
+  });
+  ['player-score','banker-score'].forEach(id=>{
+    const el=document.getElementById(id);el.textContent='';el.classList.remove('natural');
+  });
+}
+function refreshBet(type){
+  const amt=G.bets[type];
+  const el=document.getElementById('amt-'+type);
+  el.textContent='$'+amt; el.classList.toggle('zero',amt===0);
+  const box=document.getElementById('box-'+type);
+  if(box)box.classList.toggle('active',amt>0);
+}
+function refreshAllBets(){['player','banker','tie','pPair','bPair'].forEach(refreshBet);}
+function refreshBalance(){document.getElementById('balance-val').textContent='$'+G.balance.toLocaleString();}
+function refreshStats(){
+  document.getElementById('s-player').textContent=G.score.player;
+  document.getElementById('s-banker').textContent=G.score.banker;
+  document.getElementById('s-tie').textContent=G.score.tie;
+  const el=document.getElementById('streak-val');
+  if(!G.streak.type){el.innerHTML='—';return;}
+  const cls={player:'badge-p',banker:'badge-b',tie:'badge-t'}[G.streak.type];
+  const lbl={player:'P',banker:'B',tie:'T'}[G.streak.type];
+  el.innerHTML=`<span class="badge ${cls}">${lbl} × ${G.streak.n}</span>`;
+}
+function setMsg(t){document.getElementById('msg').textContent=t;}
+function showResultBanner(txt,cls){const el=document.getElementById('result-banner');el.textContent=txt;el.className='result-banner '+cls;}
+function clearResultBanner(){const el=document.getElementById('result-banner');el.textContent='';el.className='result-banner';}
+function setDealBtn(phase){
+  const btn=document.getElementById('btn-deal'),clr=document.getElementById('btn-clear'),rep=document.getElementById('btn-repeat');
+  if(phase==='betting'){btn.textContent='Deal';      btn.disabled=false;clr.disabled=false;rep.disabled=!G.lastBets;}
+  if(phase==='dealing'){btn.textContent='Dealing…'; btn.disabled=true; clr.disabled=true; rep.disabled=true;}
+  if(phase==='result') {btn.textContent='New Round';btn.disabled=false;clr.disabled=true; rep.disabled=true;}
+}
+const fmt=n=>Number.isInteger(n)?n:n.toFixed(2);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+// INIT
+G.deck=buildShoe();
+refreshBalance();
+</script>
+</body>
+</html>

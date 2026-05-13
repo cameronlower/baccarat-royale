@@ -21,12 +21,13 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
-      height: 100%;
-      overflow: hidden;
+      min-height: 100%;
+      overflow-x: hidden;
       background: #050d08;
     }
 
     body {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       color: var(--text);
@@ -93,10 +94,11 @@
     .main {
       flex: 1;
       display: flex;
+      flex-wrap: wrap;
       gap: 14px;
       padding: 12px 16px;
       min-height: 0;
-      overflow: hidden;
+      overflow: visible;
     }
 
     /* ─────────────────────────── LEFT PANEL */
@@ -156,13 +158,13 @@
     .cards-row {
       display: flex;
       justify-content: center;
-      gap: 9px;
+      gap: 12px;
       align-items: center;
-      min-height: 84px;
+      min-height: 110px;
     }
     .hand-score {
       font-family: 'Playfair Display', serif;
-      font-size: 1.65rem;
+      font-size: 1.75rem;
       color: var(--gold);
       min-height: 34px;
       line-height: 1;
@@ -172,29 +174,35 @@
 
     /* ─────────────────────────── CARDS */
     .card {
-      width: 56px; height: 80px;
-      background: #fefcf5;
-      border-radius: 7px;
-      box-shadow: 2px 3px 10px rgba(0,0,0,.52);
-      display: flex; flex-direction: column;
-      justify-content: space-between;
-      padding: 4px 5px;
+      width: 92px; height: 124px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.15);
+      border-radius: 14px;
+      box-shadow: 0 12px 24px rgba(0,0,0,.2);
       position: relative;
       animation: dealCard .38s cubic-bezier(.22,.68,0,1.2) both;
       flex-shrink: 0;
+      overflow: hidden;
     }
     @keyframes dealCard {
       from { opacity:0; transform:translateY(-60px) rotate(-8deg) scale(.8); }
       to   { opacity:1; transform:translateY(0) rotate(0) scale(1); }
     }
-    .card-corner { display:flex; flex-direction:column; align-items:flex-start; line-height:1; }
-    .card-corner.bot { align-self:flex-end; transform:rotate(180deg); }
-    .card-val  { font-family:'Playfair Display',serif; font-size:.85rem; font-weight:700; line-height:1; }
-    .card-suit { font-size:.68rem; line-height:1; }
-    .card-mid  { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.5rem; pointer-events:none; }
-    .card.red .card-val, .card.red .card-suit, .card.red .card-mid { color: var(--red); }
-    .card.blk .card-val, .card.blk .card-suit, .card.blk .card-mid { color: #161616; }
-    .card-ph { width:56px; height:80px; border-radius:7px; border:2px dashed rgba(201,168,76,.18); flex-shrink:0; }
+    .card::before {
+      content:'';
+      position:absolute;
+      inset:2px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,.05);
+      pointer-events:none;
+    }
+    .card-face {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+    .card-ph { width:92px; height:124px; border-radius:14px; border:2px dashed rgba(201,168,76,.18); flex-shrink:0; }
 
     /* ─────────────────────────── DIVIDERS */
     .divider { display:flex; align-items:center; gap:10px; padding:0 16px; flex-shrink:0; }
@@ -280,6 +288,40 @@
     .chip-25  { color:#ffe8a0; border-color:#b08030; background:radial-gradient(circle,#604018,#301808); }
     .chip-100 { color:#a8e8b0; border-color:#408050; background:radial-gradient(circle,#183828,#0a1e12); }
     .chip-500 { color:#ffc8c8; border-color:#c05050; background:radial-gradient(circle,#601010,#300808); }
+
+    @media (max-width: 920px) {
+      .topbar {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 12px 16px;
+      }
+      .title { flex: 0 0 100%; text-align: center; font-size: 1.25rem; letter-spacing: .22em; }
+      .stats-group { flex: 1 1 100%; justify-content: center; gap: 12px; }
+      .rules-btn { margin-left: 0; }
+      .main { flex-direction: column; padding: 12px; }
+      .panel-left, .panel-right { width: 100%; max-width: none; flex-direction: row; justify-content: center; flex-wrap: wrap; gap: 10px; }
+      .panel-left { order: 1; }
+      .table { order: 2; width: 100%; }
+      .panel-right { order: 3; }
+      .hand-area { padding: 10px 12px; }
+      .cards-row { gap: 8px; flex-wrap: wrap; }
+      .card, .card-ph { width: 72px; height: 96px; }
+      .hand-score { font-size: 1.35rem; }
+      .bet-row { flex-direction: column; }
+      .bet-box { max-width: none; width: 100%; }
+      .chips-grid { grid-template-columns: repeat(2, minmax(80px, 1fr)); }
+      .btn { font-size: .84rem; }
+    }
+    @media (max-width: 620px) {
+      .topbar { gap: 10px; }
+      .stats-group { gap: 8px; }
+      .rules-btn { padding: 8px 14px; }
+      .card, .card-ph { width: 62px; height: 82px; }
+      .hand-score { font-size: 1.2rem; }
+      .bet-box { padding: 10px 8px; }
+      .chips-grid { grid-template-columns: repeat(2, minmax(68px, 1fr)); }
+      .btn { padding: 10px 0; }
+    }
 
     /* ─────────────────────────── BUTTONS */
     .btn {
@@ -379,7 +421,7 @@
       </div>
       <div class="stat">
         <div class="stat-lbl">Balance</div>
-        <div class="stat-val" id="balance-val">$1,000</div>
+        <div class="stat-val" id="balance-val">$5,000</div>
       </div>
     </div>
     <button class="rules-btn" onclick="document.getElementById('rules-modal').classList.add('show')">📖 Rules</button>
@@ -476,7 +518,7 @@
       <p style="color:var(--text-dim);margin-bottom:20px;font-size:.9rem">
         Your balance has run dry, monsieur.<br>Care for another go?
       </p>
-      <button class="modal-close" onclick="resetGame()">New Game · $1,000</button>
+      <button class="modal-close" onclick="resetGame()">New Game · $5,000</button>
     </div>
   </div>
 
@@ -532,7 +574,7 @@
 //  STATE
 // ══════════════════════════════════════════════
 const G = {
-  balance: 1000,
+  balance: 5000,
   bets:    { player:0, banker:0, tie:0, pPair:0, bPair:0 },
   pHand:   [],
   bHand:   [],
@@ -688,7 +730,7 @@ function newRound(){
 }
 function resetGame(){
   document.getElementById('bust-modal').classList.remove('show');
-  G.balance=1000; G.score={player:0,banker:0,tie:0}; G.streak={type:null,n:0};
+  G.balance=5000; G.score={player:0,banker:0,tie:0}; G.streak={type:null,n:0};
   refreshStats(); refreshBalance(); newRound();
 }
 
@@ -721,6 +763,72 @@ function resetCards(){
   ['player-score','banker-score'].forEach(id=>{
     const el=document.getElementById(id);el.textContent='';el.classList.remove('natural');
   });
+}
+function suitSymbol(s){ return s; }
+function isRedSuit(s){ return s==='♥'||s==='♦'; }
+function pipPositions(value){
+  const left=60, right=140, top=60, top2=100, mid=150, bot2=200, bot=240;
+  switch(value){
+    case 'A': return [{x:100,y:150}];
+    case '2': return [{x:100,y:90},{x:100,y:210}];
+    case '3': return [{x:100,y:70},{x:100,y:150},{x:100,y:230}];
+    case '4': return [{x:left,y:85},{x:right,y:85},{x:left,y:215},{x:right,y:215}];
+    case '5': return [{x:left,y:85},{x:right,y:85},{x:100,y:150},{x:left,y:215},{x:right,y:215}];
+    case '6': return [{x:left,y:70},{x:left,y:150},{x:left,y:230},{x:right,y:70},{x:right,y:150},{x:right,y:230}];
+    case '7': return [{x:left,y:70},{x:left,y:150},{x:left,y:230},{x:right,y:70},{x:right,y:150},{x:right,y:230},{x:100,y:110}];
+    case '8': return [{x:left,y:70},{x:left,y:130},{x:left,y:210},{x:right,y:70},{x:right,y:130},{x:right,y:210},{x:100,y:100},{x:100,y:220}];
+    case '9': return [{x:left,y:70},{x:left,y:130},{x:left,y:210},{x:right,y:70},{x:right,y:130},{x:right,y:210},{x:100,y:160},{x:100,y:100},{x:100,y:220}];
+    case '10': return [{x:left,y:60},{x:right,y:60},{x:left,y:110},{x:right,y:110},{x:left,y:160},{x:right,y:160},{x:left,y:210},{x:right,y:210},{x:left,y:250},{x:right,y:250}];
+    default: return [];
+  }
+}
+function renderCardSVG(card){
+  const color = isRedSuit(card.s) ? '#c82020' : '#161616';
+  const rank = card.v;
+  const suit = suitSymbol(card.s);
+  const pip = `<text x="100" y="158" text-anchor="middle" dominant-baseline="middle" font-size="100" font-family="Georgia,serif" font-weight="800" fill="${color}">${suit}</text>`;
+  const corners = `
+    <text x="24" y="44" font-size="36" font-family="Georgia,serif" font-weight="700" fill="${color}">${rank}</text>
+    <text x="24" y="78" font-size="34" font-family="Georgia,serif" fill="${color}">${suit}</text>
+    <g transform="translate(176,236) rotate(180)">
+      <text x="0" y="0" font-size="36" font-family="Georgia,serif" font-weight="700" fill="${color}">${rank}</text>
+      <text x="0" y="34" font-size="34" font-family="Georgia,serif" fill="${color}">${suit}</text>
+    </g>`;
+  let center;
+  if(['J','Q','K'].includes(rank)){
+    center = `<text x="100" y="130" text-anchor="middle" dominant-baseline="middle" font-size="110" font-family="Georgia,serif" font-weight="900" fill="${color}">${rank}</text>
+      <text x="100" y="190" text-anchor="middle" font-size="42" font-family="Georgia,serif" fill="${color}">${suit}</text>`;
+  } else {
+    center = pipPositions(rank).map(p=>`<text x="${p.x}" y="${p.y}" text-anchor="middle" font-size="38" font-family="Georgia,serif" fill="${color}">${suit}</text>`).join('');
+  }
+  return `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 280">
+      <rect x="0" y="0" width="200" height="280" rx="16" ry="16" fill="#fff" stroke="rgba(0,0,0,.12)" stroke-width="2" />
+      <rect x="6" y="6" width="188" height="268" rx="14" ry="14" fill="none" stroke="rgba(0,0,0,.05)" stroke-width="2" />
+      ${corners}
+      ${center}
+    </svg>
+  `)}`;
+}
+function addCardEl(cid,card){
+  const row=document.getElementById(cid);
+  const ph=row.querySelector('.card-ph');
+  if(ph)ph.remove();
+  const el=document.createElement('div');
+  el.className='card '+(card.red?'red':'blk');
+  const img=document.createElement('img');
+  img.className='card-face';
+  img.src=renderCardSVG(card);
+  img.alt=`${card.v} of ${card.s}`;
+  el.appendChild(img);
+  row.appendChild(el);
+}
+function updateScoreEl(who){
+  const hand=who==='p'?G.pHand:G.bHand;
+  const el=document.getElementById(who==='p'?'player-score':'banker-score');
+  if(!hand.length){el.textContent='';el.classList.remove('natural');return;}
+  el.textContent=total(hand);
+  el.classList.toggle('natural',natural(hand));
 }
 function refreshBet(type){
   const amt=G.bets[type];
